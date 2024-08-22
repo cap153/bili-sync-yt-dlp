@@ -1,0 +1,3 @@
+toml
+# bilibili-api
+git+https://github.com/iconFehu/bilibili-api.git@main  # 3.12版本的python使用这个命令安装模块
