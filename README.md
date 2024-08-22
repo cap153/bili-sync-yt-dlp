@@ -30,7 +30,6 @@ buvid3 = ""
 dedeuserid = ""
 ac_time_value = ""
 
-
 [favorite_list]
 ```
 
@@ -62,3 +61,25 @@ ac_time_value = ""
 │   │   ├── {video_name} {page_name}.mp4
 │   │   └── {video_name} {page_name}.jpg
 ```
+
+# Dockerfile编译运行
+
+```bash
+git clone --depth 1 https://github.com/cap153/bili-sync-yt-dlp
+cd bili-sync-yt-dlp
+docker build -t bili-sync-yt-dlp ./
+docker run -v <配置文件所在目录>:/app/.config/bili-sync -v <视频保存路径>:<配置文件中的路径> 。。。。。。。
+```
+
+# 源码运行
+
+需要安装python环境，开发使用的是python3.12，配置文件请放在如下路径`~/.config/bili-sync/config.toml`
+
+```bash
+git clone --depth 1 https://github.com/cap153/bili-sync-yt-dlp
+cd bili-sync-yt-dlp
+pip install -r requirements.txt
+python bili-sync-yt-dlp.py
+```
+
+
