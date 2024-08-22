@@ -58,7 +58,7 @@ ac_time_value = ""
 ```bash
 ├── {video_name}
 │   ├── {video_name}.mp4
-│   └── {pvideo_name}.jpg
+│   └── {video_name}.jpg
 ```
 
 2. 多页视频和互动视频
