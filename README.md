@@ -31,6 +31,7 @@ dedeuserid = ""
 ac_time_value = ""
 
 [favorite_list]
+<收藏夹id> = "<保存的路径>"
 ```
 
 - `interval`:表示程序每次执行扫描下载的间隔时间，单位为秒。
@@ -40,6 +41,15 @@ ac_time_value = ""
 ```bash
 3115878158 = "/home/amtoaer/Downloads/bili-sync/测试收藏夹"
 ```
+# 收藏夹id获取方法
+
+[什么值得买的文章有详细介绍](https://post.smzdm.com/p/a4xl63gk/)，打开收藏夹
+
+![image](https://github.com/user-attachments/assets/02efefe9-0a3a-46d6-8646-a6aa462d62c2)
+
+浏览器可以看到“mlxxxxxxx”，只需要后面数字即可（不需要“ml“）
+
+![image](https://github.com/user-attachments/assets/270c7f2f-b1b1-49a1-a450-a133f0d459fa)
 
 # 目录结构
 
