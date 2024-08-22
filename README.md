@@ -1,6 +1,6 @@
 # 使用方法
 
-Linux/amd64 与 Linux/arm64 两个平台可直接使用 Docker 或 Docker Compose 运行，此处以 Compose 为例：
+目前只有 Linux/amd64 平台可使用 Docker 或 Docker Compose 运行，此处以 Compose 为例：
 
 ```yml
 services:
