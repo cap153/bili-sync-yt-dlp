@@ -19,4 +19,5 @@ class SQLiteManager:
 
     def get_values(self, table_name):
         self.cursor.execute(f'''CREATE TABLE IF NOT EXISTS "{table_name}" (bvid TEXT UNIQUE)''')
+        self.cursor.execute(f'SELECT bvid FROM "{table_name}"')
         return set(row[0] for row in self.cursor.fetchall())
