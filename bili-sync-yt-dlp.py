@@ -1,10 +1,10 @@
-# from json import dumps
 from time import sleep
 from os import path,makedirs,listdir
 from subprocess import CalledProcessError, run as subprocess_run
 from asyncio import run as asyncio_run
 from toml import load
 from bilibili_api import Credential,video,favorite_list
+from load_data import SQLiteManager
 
 # 读取配置文件
 with open(path.expanduser("~/.config/bili-sync/config.toml"), 'r', encoding='utf-8') as f:
@@ -13,12 +13,10 @@ with open(path.expanduser("~/.config/bili-sync/config.toml"), 'r', encoding='utf
 media_id_list = list(bili_sync_config['favorite_list'].keys())
 # 间隔时间
 interval = bili_sync_config['interval']
-# 用于身份认证
+# 用于身份认证,window.localStorage.ac_time_value
 credential = Credential(sessdata=bili_sync_config['credential']['sessdata'], bili_jct=bili_sync_config['credential']['bili_jct'], buvid3=bili_sync_config['credential']['buvid3'], dedeuserid=bili_sync_config['credential']['dedeuserid'], ac_time_value=bili_sync_config['credential']['ac_time_value'])
 # 需要下载的视频
 need_download_bvids = dict()
-# 已经下载的视频
-already_download_bvids = dict()
 
 async def get_bvids(media_id):
     """
@@ -29,10 +27,9 @@ async def get_bvids(media_id):
     # 实例化 FavoriteList 类，用于获取指定收藏夹信息
     fav_list = favorite_list.FavoriteList(media_id = media_id,credential = credential)
     ids = await fav_list.get_content_ids_info()
-    # js = dumps(ids,indent=4,ensure_ascii = False) # 格式化json数据方便查看
     for id in ids:
         # 未下载的新视频更新字典
-        if id['bvid'] not in already_download_bvids[media_id].copy():
+        if id['bvid'] not in already_download_bvids(media_id).copy():
             need_download_bvids[media_id].add(id['bvid'])
 
 async def get_video_info(media_id,bvid):
@@ -55,7 +52,7 @@ async def get_video_info(media_id,bvid):
         info['dynamic'] = (await v.get_info())['dynamic'] 
     except Exception:
         # 失效的视频添加到已经下载集合
-        already_download_bvids[media_id].add(bvid)
+        already_download_bvids_add(media_id=media_id,bvid=bvid)
         print(bvid+"视频失效")
     return info
 
@@ -88,7 +85,7 @@ def check_local_download(video_info,media_id, bvid,download_path):
             download_video(media_id,bvid,video_dir)
         else:
             # 存在.mp4表示该单p视频已经下载，更新字典
-            already_download_bvids[media_id].add(bvid)
+            already_download_bvids_add(media_id=media_id,bvid=bvid)
             print(f"[info] {video_name} 文件夹中的视频已存在。")
     # 多p视频或互动视频
     else:
@@ -122,7 +119,7 @@ def download_video(media_id,bvid,download_path):
     try:
         subprocess_run(command, check=True)
         # 下载成功，更新字典数据
-        already_download_bvids[media_id].add(bvid)
+        already_download_bvids_add(media_id=media_id,bvid=bvid)
         print(f"[info] {download_path} 下载成功")
     except CalledProcessError:
         print(f"[error] {download_path} 下载失败")
@@ -144,13 +141,22 @@ def save_cookies_to_txt():
     with open(path.expanduser("~/.config/bili-sync/cookies.txt"), 'w', encoding='utf-8') as f:
         f.write("\n".join(cookies_lines))
 
+# 数据库读取已经下载的视频bvids
+def already_download_bvids(media_id):
+    with SQLiteManager('data.sqlite3') as db_manager:
+        return db_manager.get_values(table_name=media_id)
+
+# 数据库添加下载成功的视频
+def already_download_bvids_add(media_id,bvid):
+    with SQLiteManager('data.sqlite3') as db_manager:
+        db_manager.insert_data(table_name=media_id,value=bvid)
+
 # 首次运行将会更新需要下载的视频字典数据
 def init_download():
     save_cookies_to_txt() # 把bili-sync配置文件中的cookies信息保存为yt-dlp可以识别的格式
     for media_id in media_id_list:
         # 插入收藏夹id
         need_download_bvids.setdefault(media_id, set())
-        already_download_bvids.setdefault(media_id, set())
         # 根据收藏夹id读取配置文件中的保存路径
         download_path = bili_sync_config['favorite_list'][media_id]
         # 判断收藏夹文件夹是否存在，不存在则创建
@@ -164,7 +170,7 @@ def init_download():
             if len(video_info)>0: # 仅下载可以获取到信息的视频
                 check_local_download(video_info=video_info,media_id=media_id,bvid=bvid,download_path=download_path)
         # 对比已经下载的数据更新需要下载的数据
-        for bvid in already_download_bvids[media_id].copy():
+        for bvid in already_download_bvids(media_id):
             try:
                 need_download_bvids[media_id].remove(bvid)
             except KeyError:
@@ -195,7 +201,7 @@ def check_updates_download():
                         makedirs(video_dir)
                     download_video(media_id,bvid,video_dir)
             # 对比已经下载的数据更新需要下载的数据
-            for bvid in already_download_bvids[media_id].copy():
+            for bvid in already_download_bvids(media_id):
                 try: # 如果need_download_bvids不存在该bvid表示已经更新过数据，直接跳过
                     need_download_bvids[media_id].remove(bvid)
                 except KeyError:
