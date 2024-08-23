@@ -75,10 +75,14 @@ ac_time_value = ""
 # Dockerfile编译运行
 
 ```bash
+# 下载最新源码
 git clone --depth 1 https://github.com/cap153/bili-sync-yt-dlp
+# 进入项目目录
 cd bili-sync-yt-dlp
+# 构建docker镜像
 docker build -t bili-sync-yt-dlp ./
-docker run -v <配置文件所在目录>:/app/.config/bili-sync -v <视频保存路径>:<配置文件中的路径> 。。。。。。。
+# 创建容器并运行，自行修改相关参数
+docker run -it --restart=always --name bili-sync-yt-dlp  -v <配置文件路径>:/app/.config/bili-sync -v <视频想保存的路径>:<配置文件写的收藏夹路径> bili-sync-yt-dlp
 ```
 
 # 源码运行
@@ -87,8 +91,11 @@ docker run -v <配置文件所在目录>:/app/.config/bili-sync -v <视频保存
 
 ```bash
 git clone --depth 1 https://github.com/cap153/bili-sync-yt-dlp
+# 进入项目目录
 cd bili-sync-yt-dlp
+# 安装依赖
 pip install -r requirements.txt
+# 运行代码
 python bili-sync-yt-dlp.py
 ```
 
