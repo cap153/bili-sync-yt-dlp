@@ -13,4 +13,4 @@ chmod +x /usr/bin/yt-dlp && \
 pip install --no-cache-dir -r requirements.txt && \
 rm -rf /var/cache/apk/
 
-CMD [ "python", "./bili-sync-yd-dlp.py" ]
+CMD [ "python", "bili-sync-yt-dlp.py" ]
