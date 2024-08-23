@@ -1,6 +1,6 @@
 # 使用方法
 
-目前只有 Linux/amd64 平台可使用 Docker 或 Docker Compose 运行，其他平台请自行编译，此处以 Compose 为例：
+目前只有 Linux/amd64 平台可使用 Docker 或 Docker Compose 运行，其他平台请[自行编译](# Dockerfile编译运行)，此处以 Compose 为例：
 
 ```yml
 services:
