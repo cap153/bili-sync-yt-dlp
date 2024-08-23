@@ -1,3 +1,5 @@
+> 首次运行时，程序会扫描目录，并记录成功下载和现存的视频信息到`data.sqlite3`数据库文件中。该文件与配置文件存放于同一目录。若需重新扫描并记录所有视频，删除 data.sqlite3 文件后重新运行程序即可。
+
 # 使用方法
 
 【bili-sync-yt-dlp下载b站视频】 https://www.bilibili.com/video/BV1e9WVemEWV/?share_source=copy_web&vd_source=d34abe3786a6b85ecc07875a85795885
