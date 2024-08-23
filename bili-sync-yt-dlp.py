@@ -143,12 +143,12 @@ def save_cookies_to_txt():
 
 # 数据库读取已经下载的视频bvids
 def already_download_bvids(media_id):
-    with SQLiteManager('data.sqlite3') as db_manager:
+    with SQLiteManager(path.expanduser("~/.config/bili-sync/data.sqlite3")) as db_manager:
         return db_manager.get_values(table_name=media_id)
 
 # 数据库添加下载成功的视频
 def already_download_bvids_add(media_id,bvid):
-    with SQLiteManager('data.sqlite3') as db_manager:
+    with SQLiteManager(path.expanduser("~/.config/bili-sync/data.sqlite3")) as db_manager:
         db_manager.insert_data(table_name=media_id,value=bvid)
 
 # 首次运行将会更新需要下载的视频字典数据
