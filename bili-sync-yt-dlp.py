@@ -114,7 +114,8 @@ def download_video(media_id,bvid,download_path):
         "--external-downloader", "aria2c", # 启用aria2，将支持aria2的特性断点续传和多线程
         "--external-downloader-args", "-x 16 -k 1m", # aria2线程等参数设置
         "--cookies", path.expanduser("~/.config/bili-sync/cookies.txt"), # cookies读取
-        "-P", download_path
+        "-P", download_path,
+        "-o", "%(title).50s [%(id)s].%(ext)s"
     ]
     try:
         subprocess_run(command, check=True)
