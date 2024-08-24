@@ -105,7 +105,7 @@ def download_video(media_id,bvid,download_path):
     :param bvid: 视频的bvid
     :param download_path: 存放视频的文件夹路径
     """
-    video_url = "https://www.bilibili.com/video/"+bvid # 拼接出视频的下载地址
+    video_url = "https://www.bilibili.com/video/"+bvid # 使用bvid拼接出视频的下载地址
     command = [
         "yt-dlp", # 调用yt-dlp已经下载的视频会自动跳过
         "-f", "bestvideo+bestaudio/best",video_url, # 最高画质下载视频
@@ -114,8 +114,8 @@ def download_video(media_id,bvid,download_path):
         "--external-downloader", "aria2c", # 启用aria2，将支持aria2的特性断点续传和多线程
         "--external-downloader-args", "-x 16 -k 1m", # aria2线程等参数设置
         "--cookies", path.expanduser("~/.config/bili-sync/cookies.txt"), # cookies读取
-        "-P", download_path,
-        "-o", "%(title).50s [%(id)s].%(ext)s"
+        "-P", download_path, # 指定存放视频的文件夹路径
+        "-o", "%(title).50s [%(id)s].%(ext)s" # 限制文件名称长度
     ]
     try:
         subprocess_run(command, check=True)
