@@ -1,39 +1,40 @@
 #!/bin/bash
 
 # 切换到存放视频和音频文件的目录
-cd "/视频存放路径"
+cd "/home/captain/media" || exit 1
 
-# 递归遍历所有子目录和文件
-find . -type f -name "*.mp4" | while read -r video; do
-  # 提取视频文件的基础名称（去掉 ".f" 和扩展名）
-  base_name="${video%.f*.mp4}"
-  echo "基础名称: $base_name"
+# 使用find命令获取所有音频和视频文件路径并存储到数组中
+mapfile -t audio_files < <(find . -type f -name "*.m4a")
+mapfile -t video_files < <(find . -type f -name "*.mp4")
+
+# 遍历所有音频文件
+for audio in "${audio_files[@]}"; do
+  # 提取音频文件的基础名称（去掉扩展名）
+  base_name="${audio%.f*.m4a}"
   
-  # 使用通配符展开匹配的音频文件
-  audio_files=("${base_name}.f"*.m4a)
-  
-  # 检查是否找到匹配的音频文件
-  if [[ -f "${audio_files[0]}" ]]; then
-    audio_file="${audio_files[0]}"
-    echo "找到的音频文件: $audio_file"
+  # 查找匹配的的视频文件
+  for video in "${video_files[@]}"; do
+    # 提取视频文件的基础名称（去掉扩展名）
+    video_base_name="${video%.f*.mp4}"
     
-    # 构建合并后的文件名，删除 "]" 到 ".mp4" 之间的内容
-    output_file="${base_name%f*}.mp4"
-    
-    echo "合并视频: $video 和音频: $audio_file -> $output_file"
-    
-    # 使用ffmpeg合并音视频
-    ffmpeg -i "$video" -i "$audio_file" -c copy "$output_file"
-    
-    # 检查ffmpeg命令是否成功
-    if [[ $? -eq 0 ]]; then
-      # 删除原始视频和音频文件
-      rm "$video" "$audio_file"
-      echo "已删除原始视频和音频文件: $video 和 $audio_file"
-    else
-      echo "合并失败，保留原始文件: $video 和 $audio_file"
+    # 比较基础名称
+    if [[ "$base_name" == "$video_base_name" ]]; then
+      # 构建合并后的文件名
+      output_file="${base_name##*/}.mp4"  # 仅保留文件名部分，去掉路径
+      
+      echo "合并视频: $video 和音频: $audio -> $output_file"
+      
+      # 使用ffmpeg合并音视频
+      if ffmpeg -i "$video" -i "$audio" -c copy -shortest "$output_file"; then
+        # 删除原始视频和音频文件
+        rm "$video" "$audio"
+        echo "已删除原始视频和音频文件: $video 和 $audio"
+      else
+        echo "合并失败，保留原始文件: $video 和 $audio"
+      fi
+      
+      # 处理完一个匹配文件后跳出内层循环，避免重复处理
+      break
     fi
-  else
-    echo "跳过: 未找到对应音频文件 for $video"
-  fi
+  done
 done
