@@ -7,6 +7,7 @@ from bilibili_api import Credential,video,favorite_list,settings
 from load_data import SQLiteManager
 
 # settings.proxy = "http://192.168.1.5:2080" # 里头填写你的代理地址
+settings.timeout = 300.0 # 超时时间设置久一点
 # 读取配置文件
 with open(path.expanduser("~/.config/bili-sync/config.toml"), 'r', encoding='utf-8') as f:
     bili_sync_config = load(f)
@@ -27,7 +28,11 @@ async def get_bvids(media_id):
     """
     # 实例化 FavoriteList 类，用于获取指定收藏夹信息
     fav_list = favorite_list.FavoriteList(media_id = media_id,credential = credential)
-    ids = await fav_list.get_content_ids_info()
+    try:
+        ids = await fav_list.get_content_ids_info()
+    except Exception as e:
+        print(f"发生错误: {e}，下一轮重试")
+        return
     for id in ids:
         # 未下载的新视频更新字典
         if id['bvid'] not in already_download_bvids(media_id).copy():
