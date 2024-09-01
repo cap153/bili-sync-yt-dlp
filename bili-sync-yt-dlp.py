@@ -3,9 +3,10 @@ from os import path,makedirs,listdir
 from subprocess import CalledProcessError, run as subprocess_run
 from asyncio import run as asyncio_run
 from toml import load
-from bilibili_api import Credential,video,favorite_list
+from bilibili_api import Credential,video,favorite_list,settings
 from load_data import SQLiteManager
 
+# settings.proxy = "http://192.168.1.5:2080" # 里头填写你的代理地址
 # 读取配置文件
 with open(path.expanduser("~/.config/bili-sync/config.toml"), 'r', encoding='utf-8') as f:
     bili_sync_config = load(f)
@@ -115,6 +116,7 @@ def download_video(media_id,bvid,download_path):
         "--external-downloader-args", "-x 16 -k 1m", # aria2线程等参数设置
         "--cookies", path.expanduser("~/.config/bili-sync/cookies.txt"), # cookies读取
         "-P", download_path, # 指定存放视频的文件夹路径
+        "--restrict-filenames", # 自动限制文件名中的字符，使其符合文件系统的要求
         "-o", "%(title).50s [%(id)s].%(ext)s" # 限制文件名称长度
     ]
     try:
