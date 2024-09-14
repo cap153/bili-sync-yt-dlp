@@ -1,12 +1,13 @@
 from time import sleep
 from os import path,makedirs,listdir
+from re import sub as sub
 from subprocess import CalledProcessError, run as subprocess_run
 from asyncio import run as asyncio_run
 from toml import load
 from bilibili_api import Credential,video,favorite_list,settings
 from load_data import SQLiteManager
 
-# settings.proxy = "http://192.168.1.5:2080" # 里头填写你的代理地址
+settings.proxy = "http://192.168.1.5:2080" # 里头填写你的代理地址
 settings.timeout = 300.0 # 超时时间设置久一点
 # 读取配置文件
 with open(path.expanduser("~/.config/bili-sync/config.toml"), 'r', encoding='utf-8') as f:
@@ -71,7 +72,7 @@ def check_local_download(video_info,media_id, bvid,download_path):
     :param bvid: 视频的bvid
     :param download_path: 存放视频的父文件夹路径
     """
-    video_name = video_info['title'] # 视频名称
+    video_name = sub(r'[^\w\s\.\-]', '', video_info['title']) # 视频名称去除特殊字符、emoji 和不符合文件名要求的字符
     pages = video_info['pages'] # 视频分p数量
     dynamic = video_info['dynamic'] # 可能包含互动视频或明星舞蹈等标签用于分辨视频类型
     # 定义视频文件夹路径
@@ -79,7 +80,6 @@ def check_local_download(video_info,media_id, bvid,download_path):
     
     # 判断文件夹是否存在，不存在则创建
     if not path.exists(video_dir):
-        print(f"[info] {video_name} 文件夹不存在，开始下载...")
         makedirs(video_dir)
 
     # 单p视频
@@ -95,13 +95,9 @@ def check_local_download(video_info,media_id, bvid,download_path):
             print(f"[info] {video_name} 文件夹中的视频已存在。")
     # 多p视频或互动视频
     else:
-        # 保存在Season 1文件夹里面
-        season_dir = path.join(video_dir, "Season 1")
-        # 提前创建好目录
-        if not path.exists(season_dir):
-            makedirs(season_dir)
         # 情况太复杂懒得写判断直接扔给yt-dlp，已经下载的视频会自动跳过
-        download_video(media_id,bvid,season_dir)
+        print(f"[info] {video_name} 开始下载多p视频...")
+        download_video(media_id,bvid,video_dir)
 
 def download_video(media_id,bvid,download_path):
     """
