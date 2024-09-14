@@ -7,7 +7,7 @@ from toml import load
 from bilibili_api import Credential,video,favorite_list,settings
 from load_data import SQLiteManager
 
-settings.proxy = "http://192.168.1.5:2080" # 里头填写你的代理地址
+# settings.proxy = "http://192.168.1.5:2080" # 里头填写你的代理地址
 settings.timeout = 300.0 # 超时时间设置久一点
 # 读取配置文件
 with open(path.expanduser("~/.config/bili-sync/config.toml"), 'r', encoding='utf-8') as f:
