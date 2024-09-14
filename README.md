@@ -70,11 +70,10 @@ ac_time_value = ""
 
 ```bash
 ├── {video_name}
-│   ├── Season 1
-│   │   ├── {video_name} {page_name}.mp4
-│   │   ├── {video_name} {page_name}.jpg
-│   │   ├── {video_name} {page_name}.mp4
-│   │   └── {video_name} {page_name}.jpg
+│   ├── {video_name} {page_name}.mp4
+│   ├── {video_name} {page_name}.jpg
+│   ├── {video_name} {page_name}.mp4
+│   └── {video_name} {page_name}.jpg
 ```
 
 # Dockerfile编译运行
