@@ -58,16 +58,6 @@ ac_time_value = ""
 
 # 目录结构
 
-1. 单页视频
-
-```bash
-├── {video_name}
-│   ├── {video_name}.mp4
-│   └── {video_name}.jpg
-```
-
-2. 多页视频和互动视频
-
 ```bash
 ├── {video_name}
 │   ├── {video_name} {page_name}.mp4
