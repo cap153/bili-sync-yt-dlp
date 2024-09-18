@@ -1,5 +1,5 @@
 from time import sleep
-from os import path,makedirs,listdir
+from os import path,makedirs
 from re import sub as sub
 from subprocess import CalledProcessError, run as subprocess_run
 from asyncio import run as asyncio_run
@@ -63,42 +63,6 @@ async def get_video_info(media_id,bvid):
         print(bvid+"视频失效")
     return info
 
-def check_local_download(video_info,media_id, bvid,download_path):
-    """
-    检查下载路径是否已经下载过该视频。
-
-    :param video_info: 包含视频信息的字典
-    :param media_id: 视频所属收藏夹id
-    :param bvid: 视频的bvid
-    :param download_path: 存放视频的父文件夹路径
-    """
-    video_name = sub(r'[^\w\s\.\-]', '', video_info['title']) # 视频名称去除特殊字符、emoji 和不符合文件名要求的字符
-    pages = video_info['pages'] # 视频分p数量
-    dynamic = video_info['dynamic'] # 可能包含互动视频或明星舞蹈等标签用于分辨视频类型
-    # 定义视频文件夹路径
-    video_dir = path.join(download_path, video_name)
-    
-    # 判断文件夹是否存在，不存在则创建
-    if not path.exists(video_dir):
-        makedirs(video_dir)
-
-    # 单p视频
-    if pages == 1 and "互动" not in dynamic:
-        # 检查是否存在.mp4文件
-        mp4_files = [f for f in listdir(video_dir) if f.endswith('.mp4')]
-        if not mp4_files:
-            print(f"[info] {video_name} 文件夹中没有找到视频，开始下载...")
-            download_video(media_id,bvid,video_dir)
-        else:
-            # 存在.mp4表示该单p视频已经下载，更新字典
-            already_download_bvids_add(media_id=media_id,bvid=bvid)
-            print(f"[info] {video_name} 文件夹中的视频已存在。")
-    # 多p视频或互动视频
-    else:
-        # 情况太复杂懒得写判断直接扔给yt-dlp，已经下载的视频会自动跳过
-        print(f"[info] {video_name} 开始下载多p视频...")
-        download_video(media_id,bvid,video_dir)
-
 def download_video(media_id,bvid,download_path):
     """
     使用 yt-dlp 下载视频。
@@ -155,30 +119,13 @@ def already_download_bvids_add(media_id,bvid):
     with SQLiteManager(path.expanduser("~/.config/bili-sync/data.sqlite3")) as db_manager:
         db_manager.insert_data(table_name=media_id,value=bvid)
 
-# 首次运行将会更新需要下载的视频字典数据
+# 初始化
 def init_download():
-    save_cookies_to_txt() # 把bili-sync配置文件中的cookies信息保存为yt-dlp可以识别的格式
+    # 把bili-sync配置文件中的cookies信息保存为yt-dlp可以识别的格式
+    save_cookies_to_txt() 
+    # 根据收藏夹id初始化字典数据
     for media_id in media_id_list:
-        # 插入收藏夹id
         need_download_bvids.setdefault(media_id, set())
-        # 根据收藏夹id读取配置文件中的保存路径
-        download_path = bili_sync_config['favorite_list'][media_id]
-        # 判断收藏夹文件夹是否存在，不存在则创建
-        if not path.exists(download_path):
-            makedirs(download_path)
-        # 获取收藏夹中未下载的视频的bvid
-        asyncio_run(get_bvids(media_id))
-        # 获取未失效的视频信息并下载
-        for bvid in need_download_bvids[media_id].copy(): # 遍历的时候使用copy()方法创建副本，这样即使在迭代过程中修改了原集合，也不会影响到迭代器
-            video_info = asyncio_run(get_video_info(media_id,bvid)) # 获取视频信息
-            if len(video_info)>0: # 仅下载可以获取到信息的视频
-                check_local_download(video_info=video_info,media_id=media_id,bvid=bvid,download_path=download_path)
-        # 对比已经下载的数据更新需要下载的数据
-        for bvid in already_download_bvids(media_id):
-            try:
-                need_download_bvids[media_id].remove(bvid)
-            except KeyError:
-                pass
 
 # 间隔指定时间检查收藏夹是否更新并下载
 def check_updates_download():
@@ -193,18 +140,13 @@ def check_updates_download():
                 video_info = asyncio_run(get_video_info(media_id,bvid)) # 获取视频信息
                 if len(video_info)>0: # 仅下载可以获取到信息的视频
                     video_name = video_info['title']
-                    pages = video_info['pages']
-                    dynamic = video_info['dynamic']
                     # 定义视频文件夹路径
                     video_dir = path.join(download_path, video_name)
-                    # 多p视频和互动视频保存在Season 1文件夹里面
-                    if pages != 1 or "互动" in dynamic:
-                        video_dir = path.join(video_dir, "Season 1")
                     # 判断文件夹是否存在，不存在则创建
                     if not path.exists(video_dir):
                         makedirs(video_dir)
                     download_video(media_id,bvid,video_dir)
-            # 对比已经下载的数据更新需要下载的数据
+            # 对比已经下载的数据批量更新需要下载的数据
             for bvid in already_download_bvids(media_id):
                 try: # 如果need_download_bvids不存在该bvid表示已经更新过数据，直接跳过
                     need_download_bvids[media_id].remove(bvid)
