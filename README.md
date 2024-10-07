@@ -81,7 +81,11 @@ docker run -it --restart=always --name bili-sync-yt-dlp  -v <配置文件路径>
 
 # 源码运行
 
-需要安装python环境，开发使用的是python3.12，配置文件请放在如下路径`~/.config/bili-sync/config.toml`
+1. 安装ffmpeg并配置环境变量，[https://www.ffmpeg.org/](https://www.ffmpeg.org/)
+2. 安装yt-dlp并配置环境变量，[https://github.com/yt-dlp/yt-dlp](https://github.com/yt-dlp/yt-dlp)
+3. 安装aria2并配置环境变量，[https://github.com/aria2/aria2](https://github.com/aria2/aria2)
+4. 安装python环境，开发使用的是python3.12
+5. 配置文件请放在如下路径`~/.config/bili-sync/config.toml`
 
 ```bash
 git clone --depth 1 https://github.com/cap153/bili-sync-yt-dlp
