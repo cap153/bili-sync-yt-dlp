@@ -1,5 +1,5 @@
 from time import sleep
-from os import path,makedirs
+from os import path
 from re import sub as sub
 from subprocess import CalledProcessError, run as subprocess_run
 from asyncio import run as asyncio_run
@@ -63,7 +63,7 @@ async def get_video_info(media_id,bvid):
         print(bvid+"视频失效")
     return info
 
-def download_video(media_id,bvid,download_path):
+def download_video(media_id,bvid,download_path,video_name):
     """
     使用 yt-dlp 下载视频。
 
@@ -82,7 +82,7 @@ def download_video(media_id,bvid,download_path):
         "--cookies", path.expanduser("~/.config/bili-sync/cookies.txt"), # cookies读取
         "-P", download_path, # 指定存放视频的文件夹路径
         "--restrict-filenames", # 自动限制文件名中的字符，使其符合文件系统的要求
-        "-o", "%(title).50s [%(id)s].%(ext)s" # 限制文件名称长度
+        "-o", f"{video_name[:50]}_%(playlist_index)s.%(ext)s"  # 使用 video_name 变量并限制文件名
     ]
     try:
         subprocess_run(command, check=True)
@@ -140,12 +140,7 @@ def check_updates_download():
                 video_info = asyncio_run(get_video_info(media_id,bvid)) # 获取视频信息
                 if len(video_info)>0: # 仅下载可以获取到信息的视频
                     video_name = video_info['title']
-                    # 定义视频文件夹路径
-                    video_dir = path.join(download_path, video_name)
-                    # 判断文件夹是否存在，不存在则创建
-                    if not path.exists(video_dir):
-                        makedirs(video_dir)
-                    download_video(media_id,bvid,video_dir)
+                    download_video(media_id,bvid,download_path,video_name)
             # 对比已经下载的数据批量更新需要下载的数据
             for bvid in already_download_bvids(media_id):
                 try: # 如果need_download_bvids不存在该bvid表示已经更新过数据，直接跳过
