@@ -1,3 +1,4 @@
 toml
 # bilibili-api
 git+https://github.com/iconFehu/bilibili-api.git@main  # 3.12版本的python使用这个命令安装模块
+git+https://github.com/grqz/yt-dlp.git@ie/bilibili/pi_fallbk # 这个版本的yt-dlp可以解决[BiliBili] unable to extract play info 问题
