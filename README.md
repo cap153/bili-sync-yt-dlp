@@ -59,7 +59,7 @@ ac_time_value = ""
 # 目录结构
 
 ```bash
-├── {video_name}
+├── 收藏夹
 │   ├── {video_name} {page_name}.mp4
 │   ├── {video_name} {page_name}.jpg
 │   ├── {video_name} {page_name}.mp4
