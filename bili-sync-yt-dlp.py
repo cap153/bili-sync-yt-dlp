@@ -4,7 +4,7 @@ from re import sub as sub
 from subprocess import CalledProcessError, run as subprocess_run
 from asyncio import run as asyncio_run
 from toml import load
-from bilibili_api import Credential,video,favorite_list,settings
+from bilibili_api import Credential,video,favorite_list,settings,sync
 from load_data import SQLiteManager
 
 # settings.proxy = "http://192.168.1.5:2080" # 里头填写你的代理地址
@@ -92,6 +92,17 @@ def download_video(media_id,bvid,download_path,video_name):
     except CalledProcessError:
         print(f"[error] {download_path} 下载失败")
 
+# 自动刷新cookie
+def refresh_cookie():
+    if(sync(credential.check_refresh())):
+        print(f"[info] 发现cookie过期，正在刷新")
+        sync(credential.refresh())
+        bili_sync_config['credential']['sessdata'] = credential.sessdata
+        bili_sync_config['credential']['bili_jct'] = credential.bili_jct
+        bili_sync_config['credential']['dedeuserid'] = credential.dedeuserid
+        bili_sync_config['credential']['ac_time_value'] = credential.ac_time_value
+        save_cookies_to_txt()
+
 # 把bili-sync配置文件中的cookies信息保存为yt-dlp可以识别的格式
 def save_cookies_to_txt():
     # 获取cookies信息
@@ -130,6 +141,7 @@ def init_download():
 # 间隔指定时间检查收藏夹是否更新并下载
 def check_updates_download():
     while True:
+        refresh_cookie() # 检测是否需要刷新cookie
         for media_id in media_id_list:
             # 根据收藏夹id读取配置文件中的保存路径
             download_path = bili_sync_config['favorite_list'][media_id]
