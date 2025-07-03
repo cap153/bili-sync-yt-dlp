@@ -2,8 +2,6 @@
 
 # 使用方法
 
-【bili-sync-yt-dlp下载b站视频】 https://www.bilibili.com/video/BV1e9WVemEWV/?share_source=copy_web&vd_source=d34abe3786a6b85ecc07875a85795885
-
 目前只有 Linux/amd64 平台可使用 Docker 或 Docker Compose 运行，其他平台请[自行编译](#Dockerfile编译运行)，此处以 Compose 为例：
 
 ```yml
