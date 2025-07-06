@@ -1,4 +1,5 @@
-使用rust开发了一个新的同步b站视频的项目，[github地址](https://github.com/cap153/bili-sync-fav)，解决了内存泄漏、视频名称乱码等诸多问题，请直接移步该项目
+> [!IMPORTANT]
+> 使用rust开发了一个新的同步b站视频的项目，[github地址](https://github.com/cap153/bili-sync-fav)，解决了内存泄漏、视频名称乱码等诸多问题，请直接移步该项目
 
 > 首次运行时，程序会扫描目录，并记录成功下载和现存的视频信息到`data.sqlite3`数据库文件中。该文件与配置文件存放于同一目录。若需重新扫描并记录所有视频，删除 data.sqlite3 文件后重新运行程序即可。
 
